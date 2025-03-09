@@ -1,0 +1,690 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.game-container {
+    display: flex;
+    height: 100vh;
+    flex-direction: row-reverse;
+}
+
+.sidebar {
+    flex: 1;
+    min-width: 300px;
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+}
+
+.main-content {
+    flex: 3;
+    background-color: #34495e;
+    padding: 20px;
+}
+
+.game-map {
+    background-color: #90EE90;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    border-radius: 8px;
+    border: 2px solid #2c3e50;
+    transition: filter 2s ease;
+    cursor: default;
+}
+
+.game-map.night {
+    filter: brightness(0.4) saturate(0.8);
+}
+
+.game-map.placing {
+    cursor: crosshair;
+}
+
+.country-info {
+    margin-bottom: 20px;
+}
+
+.resources {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #34495e;
+    border-radius: 5px;
+}
+
+.buildings button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #3498db;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buildings button:hover {
+    background-color: #2980b9;
+}
+
+.country {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 2px solid black;
+    cursor: pointer;
+}
+
+.building {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: all 0.3s ease;
+    animation: buildingPlace 0.5s ease-out;
+}
+
+/* Base building sizes */
+.building.house {
+    width: 35px;
+    height: 35px;
+}
+
+.building.barracks {
+    width: 40px;
+    height: 40px;
+}
+
+.building.farm {
+    width: 35px;
+    height: 35px;
+}
+
+/* Era-specific house styles */
+.building.house.ancient {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10L10 50h10v40h60V50h10L50 10z" fill="%23BC8F8F"/><path d="M40 50h20v40H40z" fill="%23A0522D"/><path d="M20 90h60v10H20z" fill="%238B4513"/></svg>');
+}
+
+.building.house.medieval {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 40h60v60H20z" fill="%23DEB887"/><path d="M10 40h80L50 10z" fill="%238B4513"/><path d="M35 70h30v30H35z" fill="%23A0522D"/><path d="M30 40h10v20H30zM60 40h10v20H60z" fill="%23A0522D"/></svg>');
+}
+
+.building.house.renaissance {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M15 30h70v70H15z" fill="%23DEB887"/><path d="M10 30h80L50 5z" fill="%238B4513"/><path d="M30 60h40v40H30z" fill="%23A0522D"/><path d="M25 40h15v15H25zM60 40h15v15H60z" fill="%23A0522D"/><path d="M45 30h10v20H45z" fill="%23A0522D"/></svg>');
+}
+
+.building.house.industrial {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h80v80H10z" fill="%23CD853F"/><path d="M20 30h20v20H20zM60 30h20v20H60zM40 60h20v40H40z" fill="%23A0522D"/><path d="M80 20L60 0v20h20z" fill="%238B4513"/></svg>');
+}
+
+/* Era-specific barracks styles */
+.building.barracks.ancient {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 30h80v60H10z" fill="%23A0522D"/><path d="M0 30h100v10H0z" fill="%238B4513"/><path d="M20 50h20v40H20zM60 50h20v40H60z" fill="%23DEB887"/></svg>');
+}
+
+.building.barracks.medieval {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h80v80H10z" fill="%23A0522D"/><path d="M0 20h100L50 0z" fill="%238B4513"/><path d="M20 40h20v20H20zM60 40h20v20H60z" fill="%23DEB887"/><path d="M40 70h20v30H40z" fill="%238B4513"/></svg>');
+}
+
+.building.barracks.renaissance {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0 20h100v80H0z" fill="%23A0522D"/><path d="M10 30h30v30H10zM60 30h30v30H60z" fill="%23DEB887"/><path d="M35 60h30v40H35z" fill="%238B4513"/><path d="M45 20h10v30H45z" fill="%23DEB887"/></svg>');
+}
+
+.building.barracks.industrial {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h80v80H10z" fill="%23A0522D"/><path d="M20 30h60v10H20zM20 50h60v10H20zM20 70h60v10H20z" fill="%23DEB887"/><path d="M80 20L60 0v20h20z" fill="%238B4513"/></svg>');
+}
+
+/* Era-specific farm styles */
+.building.farm.ancient {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M30 40h40v40H30z" fill="%23DEB887"/><path d="M20 80h60v10H20z" fill="%238B4513"/><path d="M10 40h80L50 20z" fill="%23A0522D"/><path d="M10 50h80v30H10z" fill="%23228B22"/></svg>');
+}
+
+.building.farm.medieval {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 30h60v50H20z" fill="%23DEB887"/><path d="M10 30h80L50 10z" fill="%238B4513"/><path d="M30 50h40v30H30z" fill="%23228B22"/><path d="M10 60h20v20H10zM70 60h20v20H70z" fill="%23A0522D"/></svg>');
+}
+
+.building.farm.renaissance {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 30h80v50H10z" fill="%23DEB887"/><path d="M0 30h100L50 10z" fill="%238B4513"/><path d="M20 50h60v30H20z" fill="%23228B22"/><path d="M30 30h10v20H30zM60 30h10v20H60z" fill="%23A0522D"/></svg>');
+}
+
+.building.farm.industrial {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h80v60H10z" fill="%23DEB887"/><path d="M80 20L60 0v20h20z" fill="%238B4513"/><path d="M20 40h60v40H20z" fill="%23228B22"/><path d="M75 20h5v60H75z" fill="%23A0522D"/></svg>');
+}
+
+/* Wall styling with rotation */
+.building.wall {
+    width: 120px;
+    height: 50px;
+    transform-origin: center;
+    cursor: move;
+}
+
+.building.wall.ancient {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M0 10h100v30H0z" fill="%23808080"/><path d="M10 0h10v10H10zM30 0h10v10H30zM50 0h10v10H50zM70 0h10v10H70zM90 0h10v10H90z" fill="%23696969"/></svg>');
+}
+
+.building.wall.medieval {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M0 5h100v35H0z" fill="%23808080"/><path d="M5 0h15v15H5zM25 0h15v15H25zM45 0h15v15H45zM65 0h15v15H65zM85 0h15v15H85z" fill="%23696969"/></svg>');
+}
+
+.building.wall.renaissance {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M0 5h100v35H0z" fill="%23808080"/><path d="M0 5h100v5H0z" fill="%23696969"/><path d="M10 0l5 5H5z" fill="%23696969"/><path d="M30 0l5 5H25z" fill="%23696969"/><path d="M50 0l5 5H45z" fill="%23696969"/><path d="M70 0l5 5H65z" fill="%23696969"/><path d="M90 0l5 5H85z" fill="%23696969"/></svg>');
+}
+
+.building.wall.industrial {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M0 0h100v40H0z" fill="%23808080"/><path d="M0 0h100v5H0zM0 35h100v5H0z" fill="%23696969"/><path d="M10 5h5v30H10zM30 5h5v30H30zM50 5h5v30H50zM70 5h5v30H70zM90 5h5v30H90z" fill="%23595959"/></svg>');
+}
+
+.castle {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.castle::before {
+    content: '';
+    position: absolute;
+    width: var(--castle-health, 100%);
+    height: 5px;
+    background-color: #2ECC71;
+    top: -10px;
+    left: 0;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.castle.ancient {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 30h60v60H20z" fill="%238B4513"/><path d="M15 30h70v5H15zM15 85h70v5H15z" fill="%23654321"/><path d="M25 35h10v10H25zM65 35h10v10H65zM45 60h10v30H45z" fill="%23654321"/><path d="M10 25h80L50 10z" fill="%238B4513"/><path d="M20 30l-5-5h70l-5 5z" fill="%23654321"/><path d="M25 25h10v5H25zM45 25h10v5H45zM65 25h10v5H65z" fill="%23000000"/></svg>');
+}
+
+.castle.medieval {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M15 25h70v65H15z" fill="%238B4513"/><path d="M10 25h80v5H10zM10 85h80v5H10z" fill="%23654321"/><path d="M20 30h10v15H20zM70 30h10v15H70zM40 55h20v35H40z" fill="%23654321"/><path d="M5 20h90L50 5z" fill="%238B4513"/><path d="M15 25h10v5H15zM35 25h10v5H35zM55 25h10v5H55zM75 25h10v5H75z" fill="%23000000"/><path d="M25 40h50v5H25z" fill="%23654321"/></svg>');
+    width: 140px;
+    height: 140px;
+}
+
+.castle.renaissance {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h80v70H10z" fill="%238B4513"/><path d="M5 20h90v5H5zM5 85h90v5H5z" fill="%23654321"/><path d="M15 25h15v20H15zM70 25h15v20H70zM35 50h30v40H35z" fill="%23654321"/><path d="M0 15h100L50 0z" fill="%238B4513"/><path d="M15 20h10v5H15zM35 20h10v5H35zM55 20h10v5H55zM75 20h10v5H75z" fill="%23000000"/><path d="M20 35h60v5H20zM25 50h50v5H25z" fill="%23654321"/></svg>');
+    width: 160px;
+    height: 160px;
+}
+
+.castle.industrial {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M5 15h90v75H5z" fill="%238B4513"/><path d="M0 15h100v5H0zM0 85h100v5H0z" fill="%23654321"/><path d="M10 20h20v25H10zM70 20h20v25H70zM30 45h40v45H30z" fill="%23654321"/><path d="M0 10h100L50 0z" fill="%238B4513"/><path d="M10 15h15v5H10zM35 15h15v5H35zM60 15h15v5H60zM85 15h15v5H85z" fill="%23000000"/><path d="M15 35h70v5H15zM20 50h60v5H20zM25 65h50v5H25z" fill="%23654321"/></svg>');
+    width: 180px;
+    height: 180px;
+}
+
+.soldier {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    transform: translate(-50%, -50%);
+}
+
+.soldier.spearman {
+    background-image: url('assets/spearman.png');
+}
+
+.soldier.swordsman {
+    background-image: url('assets/swordsman.png');
+}
+
+.soldier.musketeer {
+    background-image: url('assets/musketeer.png');
+}
+
+.soldier.rifleman {
+    background-image: url('assets/rifleman.png');
+}
+
+/* Add weapon animations */
+.soldier::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.spearman::after {
+    background-image: url('assets/spear.png');
+}
+
+.swordsman::after {
+    background-image: url('assets/sword.png');
+}
+
+.musketeer::after {
+    background-image: url('assets/musket.png');
+}
+
+.rifleman::after {
+    background-image: url('assets/rifle.png');
+}
+
+.enemy {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #FF0000;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid #8B0000;
+    z-index: 5;
+}
+
+.health-bar {
+    position: absolute;
+    top: -5px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #2ECC71;
+}
+
+.house {
+    background-color: #DEB887;
+    border: 1px solid #8B4513;
+}
+
+.farm {
+    background-color: #90EE90;
+    border: 1px solid #228B22;
+}
+
+.barracks {
+    background-color: #A0522D;
+    border: 1px solid #8B4513;
+}
+
+/* Remove all minimap related styles */
+.minimap-container,
+.minimap,
+.minimap-dot,
+.minimap-legend,
+.legend-item,
+.legend-dot {
+    display: none;
+}
+
+.soldier-info {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: pre-line;
+    z-index: 100;
+    pointer-events: none;
+    transform: translateY(-100%);
+    top: -10px;
+    left: 0;
+    min-width: 150px;
+}
+
+.soldier {
+    cursor: pointer;
+}
+
+/* Weapon-specific styles */
+.soldier.spearman::after {
+    width: 16px;
+    height: 4px;
+}
+
+.soldier.swordsman::after {
+    width: 12px;
+    height: 6px;
+}
+
+.soldier.musketeer::after {
+    width: 20px;
+    height: 6px;
+}
+
+.soldier.rifleman::after {
+    width: 24px;
+    height: 6px;
+}
+
+.wave-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 24px;
+    z-index: 100;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+
+/* Add building placement animation */
+@keyframes buildingPlace {
+    0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Civilian styling */
+.civilian {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #FFB6C1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+    z-index: 3;
+}
+
+/* Civilian running animation */
+@keyframes run {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(0.9); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.civilian.running {
+    animation: run 0.3s infinite;
+}
+
+/* Add ghost building style */
+.building.ghost {
+    opacity: 0.5;
+    pointer-events: none;
+    border: 2px dashed #fff;
+}
+
+/* Soldier styles with weapons */
+.soldier {
+    width: 30px;
+    height: 30px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.soldier::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.soldier.spearman {
+    background-color: #4169E1;
+    border-radius: 50%;
+    border: 2px solid #000080;
+}
+
+.soldier.spearman::after {
+    background-color: #8B4513;
+    height: 4px;
+    width: 25px;
+}
+
+.soldier.swordsman {
+    background-color: #4169E1;
+    border-radius: 50%;
+    border: 2px solid #000080;
+}
+
+.soldier.swordsman::after {
+    background-color: #C0C0C0;
+    height: 15px;
+    width: 6px;
+}
+
+.soldier.musketeer {
+    background-color: #4169E1;
+    border-radius: 50%;
+    border: 2px solid #000080;
+}
+
+.soldier.musketeer::after {
+    background-color: #8B4513;
+    height: 8px;
+    width: 30px;
+}
+
+.soldier.rifleman {
+    background-color: #4169E1;
+    border-radius: 50%;
+    border: 2px solid #000080;
+}
+
+.soldier.rifleman::after {
+    background-color: #696969;
+    height: 6px;
+    width: 35px;
+}
+
+/* Add stun effect for enemies */
+.enemy.stunned {
+    animation: stun 0.5s infinite;
+}
+
+@keyframes stun {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    25% { transform: translate(-50%, -50%) rotate(-15deg); }
+    75% { transform: translate(-50%, -50%) rotate(15deg); }
+    100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+/* Add day notification style */
+.day-info {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 20px;
+    z-index: 100;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+/* Update wall SVGs to match new size */
+.building.wall.ancient,
+.building.wall.medieval,
+.building.wall.renaissance,
+.building.wall.industrial {
+    background-size: 120px 50px;
+}
+
+/* Add Modern era styles */
+.building.house.modern {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h80v80H10z" fill="%23A9A9A9"/><path d="M20 30h20v20H20zM60 30h20v20H60zM40 60h20v40H40z" fill="%23696969"/><path d="M0 20h100v5H0z" fill="%23808080"/></svg>');
+}
+
+.castle.modern {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0 10h100v90H0z" fill="%23A9A9A9"/><path d="M10 20h80v70H10z" fill="%23808080"/><path d="M20 30h60v50H20z" fill="%23696969"/><path d="M40 40h20v40H40z" fill="%23505050"/></svg>');
+    width: 200px;
+    height: 200px;
+}
+
+/* Building upgrade indicators */
+.building[data-upgrade-level="2"]::after {
+    content: '⭐';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 12px;
+}
+
+.building[data-upgrade-level="3"]::after {
+    content: '⭐⭐';
+}
+
+/* Modern soldier style */
+.soldier.commando {
+    background-color: #2F4F4F;
+    border-radius: 50%;
+    border: 2px solid #000000;
+}
+
+.soldier.commando::after {
+    background-color: #2F4F4F;
+    height: 6px;
+    width: 40px;
+}
+
+.construction-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    transition: height 0.05s linear;
+}
+
+/* Future era styles */
+.building.house.future {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h80v80H10z" fill="%23B0C4DE"/><path d="M20 30h20v20H20zM60 30h20v20H60zM40 60h20v40H40z" fill="%234682B4"/><path d="M0 20h100v5H0z" fill="%23483D8B"/></svg>');
+}
+
+.soldier.cyborg {
+    background-color: #4682B4;
+    border-radius: 50%;
+    border: 2px solid #483D8B;
+}
+
+.soldier.cyborg::after {
+    background-color: #B0C4DE;
+    height: 8px;
+    width: 45px;
+}
+
+.worker {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #8B4513;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+}
+
+.worker.gathering {
+    animation: gather 1s infinite;
+}
+
+@keyframes gather {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(0.8); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Building styles with external images */
+.building.house {
+    background-image: url('https://example.com/path/to/house.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.building.farm {
+    background-image: url('https://example.com/path/to/farm.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.building.barracks {
+    background-image: url('https://example.com/path/to/barracks.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.building.wall {
+    background-image: url('https://example.com/path/to/wall.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.building.selected {
+    outline: 2px solid #FFD700;
+    z-index: 10;
+}
+
+.building-upgrades {
+    margin-top: 20px;
+}
+
+.upgrade-options {
+    background-color: #34495e;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.upgrade-btn {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+    background-color: #3498db;
+    border: none;
+    color: white;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.upgrade-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Add spawn animation for soldiers */
+@keyframes soldierSpawn {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.soldier.spawning {
+    animation: soldierSpawn 0.5s ease-out;
+} 

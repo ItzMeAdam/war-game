@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civilization Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="sidebar">
+            <div class="country-info">
+                <h2>Country: <span id="countryName">Unnamed</span></h2>
+                <button id="renameCountry">Rename</button>
+                <div class="resources">
+                    <p>Era: <span id="era">Ancient</span></p>
+                    <p>Gold: <span id="gold">1000</span> (+<span id="goldPerDay">0</span>/day)</p>
+                    <p>Population: <span id="population">100</span></p>
+                    <p>Food: <span id="food">500</span> (+<span id="foodPerDay">0</span>/day)</p>
+                    <p>Soldiers: <span id="soldiers">0</span> (+<span id="soldiersPerDay">0</span>/day)</p>
+                    <p>Available Workers: <span id="availableWorkers">0</span></p>
+                </div>
+            </div>
+            <div class="buildings">
+                <h3>Build</h3>
+                <button class="build-btn" data-building="house">House (50 gold)</button>
+                <button class="build-btn" data-building="farm">Farm (100 gold)</button>
+                <button class="build-btn" data-building="barracks">Barracks (300 gold)</button>
+                <button class="build-btn" data-building="wall">Wall (150 gold)</button>
+            </div>
+            <div class="era-upgrade">
+                <h3>Current Era: <span id="currentEra">Ancient</span></h3>
+                <button id="upgradeEra" style="display: none;">Advance to Next Era (2000 gold)</button>
+            </div>
+            <div class="building-upgrades">
+                <h3>Building Upgrades</h3>
+                <div class="upgrade-options" style="display: none;">
+                    <h4 id="selectedBuilding">Selected: None</h4>
+                    <button id="upgradeCapacity" class="upgrade-btn">Upgrade Capacity</button>
+                    <button id="upgradeEfficiency" class="upgrade-btn">Upgrade Efficiency</button>
+                    <button id="upgradeTraining" class="upgrade-btn">Upgrade Training</button>
+                </div>
+            </div>
+            <div class="upgrade-paths" style="display: none;">
+                <h4>Upgrade Paths</h4>
+                <div class="path-a">
+                    <h5>Combat Path</h5>
+                    <button class="upgrade-path-btn" data-path="pathA">Upgrade Damage</button>
+                    <div class="upgrade-level"></div>
+                </div>
+                <div class="path-b">
+                    <h5>Quantity Path</h5>
+                    <button class="upgrade-path-btn" data-path="pathB">Upgrade Quantity</button>
+                    <div class="upgrade-level"></div>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div id="gameMap" class="game-map"></div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html> 
